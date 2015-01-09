@@ -828,6 +828,15 @@ int LuaStack::luaLoadChunksFromZIP(lua_State *L)
                 ssize_t bufferSize = 0;
                 unsigned char *zbuffer = zip->getFileData(filename.c_str(), &bufferSize);
                 if (bufferSize) {
+                    // remove extension
+                    filename.erase(filename.size() - 4, 4);
+                    // replace path seperator '/' '\' to '.'
+                    for (int i=0; i<filename.size(); i++) {
+                        if (filename[i] == '/' || filename[i] == '\\') {
+                            filename[i] = '.';
+                        }
+                    }
+                    CCLOG("[luaLoadChunksFromZIP] add %s to preload", filename.c_str());
                     if (stack->luaLoadBuffer(L, (char*)zbuffer, (int)bufferSize, filename.c_str()) == 0) {
                         lua_setfield(L, -2, filename.c_str());
                         ++count;
